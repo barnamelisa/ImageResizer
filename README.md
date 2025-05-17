@@ -1,81 +1,29 @@
-# 🖼️ Proiect Procesare Imagini – Zoom & Shrink
+Testare pentru scale factor = 0.5
 
-Proiect realizat in C++ cu opencv, care permite marirea 🔍 si micsorarea 🔽 imaginilor grayscale pe 8 biti folosind diferite metode de interpolare.
+Nearest Neighbor time: 0.0075203 sec
+Bilinear time: 0.0068229 sec
+Bicubic time: 0.0292748 sec
+Gaussian time (sigma=0.5): 0.0208539 sec
+Gaussian time (sigma=1): 0.0184387 sec
+Gaussian time (sigma=2): 0.0196408 sec
 
-## 📌 1. managementul proiectului
+----------------------------------------
+Testare pentru scale factor = 1
 
-### 🎯 1.1 tema aleasa
-- marirea si micsorarea imaginilor digitale la orice scala
-- lucram cu imagini grayscale (8 biti)
-- testam si comparam mai multe metode de interpolare 📊
+Nearest Neighbor time: 0.0310484 sec
+Bilinear time: 0.0159381 sec
+Bicubic time: 0.0975146 sec
+Gaussian time (sigma=0.5): 0.069152 sec
+Gaussian time (sigma=1): 0.0644941 sec
+Gaussian time (sigma=2): 0.0655824 sec
 
-### 🎯 1.2 scopul proiectului
-- sa implementez tehnici de redimensionare (zoom si shrink) pentru imagini digitale
-- algoritmul permite scalare libera (ex: 60%, 120%, 960x420 px etc)
-- atat zoom (ex: 200%) cat si shrink sunt suportate ✅
+----------------------------------------
+Testare pentru scale factor = 2
 
-### 🧠 1.3 domenii de aplicabilitate
-- in camere de supraveghere si recunoastere faciala 🎥
-- pe site-uri web (pentru viteza si adaptare pe ecran) 🌐
-- cand tiparim sau incarcam poze pe retele sociale 🖨️📱
-
-### ❗ 1.4 problema rezolvata
-- cand marim, imaginea devine neclara 👎
-- cand micsoram prea mult, pierdem detalii 🫥
-- scopul este sa mentinem claritatea si detaliile 🔧
-
-### 💡 1.5 intuitia metodei
-- marirea/micsorarea presupune adaugarea sau eliminarea de pixeli
-- noii pixeli sunt "ghiciti" folosind informatia vecinilor 🔎
-- folosim interpolare pentru a estima corect valorile 📐
-
----
-
-## 🛠️ 2. planificarea proiectului
-
-### 🧑‍💻 2.1 pasul 1 – implementarea algoritmilor
-- folosesc c++ si opencv
-- codul transforma teoria in practica
-- rezultatul: un program care redimensioneaza imagini corect
-- probleme posibile: erori de cod, incompatibilitati cu opencv 🐞
-
-### 📐 2.2 alegerea metodelor de interpolare
-folosesc 4 metode:
-
-#### 1️⃣Nnearest neighbor interpolation
-- cel mai simplu: pixelul nou copiaza cel mai apropiat vecin
-- rapid dar nu foarte precis
-- ideal pt forme simple 🟦🟥
-
-#### 2️⃣ bilinear interpolation
-- foloseste media celor 4 pixeli vecini
-- mai neted decat metoda anterioara
-- bun pentru imagini cu detalii medii
-
-#### 3️⃣ bicubic interpolation
-- foloseste 16 pixeli in jur
-- se bazeaza pe spline-ul catmull-rom pentru netezime
-- rezultate de calitate superioara, ideal pentru detalii 🎨
-
-#### 4️⃣ gaussian interpolation
-- media ponderata a pixelilor vecini
-- cei apropiati au greutate mai mare
-- folosesc metoda backward pt aplicare in acest proiect 🎯
-
----
-
-## 📂 fisiere
-
-- `main.cpp` – codul principal (citire, afisare, apeluri metode)
-- `project.h` – header cu functii de redimensionare
-- `project.cpp` – implementare metode interpolare
-
----
-
-## 🖥️ cerinte
-
-- compilator c++ (g++, clang etc)
-- opencv instalat ✅
-- imagine input in format grayscale
-
----
+Nearest Neighbor time: 0.0854533 sec
+Bilinear time: 0.0518274 sec
+Bicubic time: 0.339189 sec
+Gaussian time (sigma=0.5): 0.248825 sec
+Gaussian time (sigma=1): 0.243116 sec
+Gaussian time (sigma=2): 0.243938 sec
+----------------------------------------

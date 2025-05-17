@@ -1,0 +1,3 @@
+C:/Users/barna/OneDrive/Desktop/an3-sem2/pi/lab/laboratoare/lab8/Image_Processing_UTCN_Labs/cmake-build-debug/CMakeFiles/Lab8.dir
+C:/Users/barna/OneDrive/Desktop/an3-sem2/pi/lab/laboratoare/lab8/Image_Processing_UTCN_Labs/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/barna/OneDrive/Desktop/an3-sem2/pi/lab/laboratoare/lab8/Image_Processing_UTCN_Labs/cmake-build-debug/CMakeFiles/rebuild_cache.dir
