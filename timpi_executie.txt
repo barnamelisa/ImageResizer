@@ -1,0 +1,30 @@
+
+Testare pentru scale factor = 0.5
+
+Nearest Neighbor time: 0.0075203 sec
+Bilinear time: 0.0068229 sec
+Bicubic time: 0.0292748 sec
+Gaussian time (sigma=0.5): 0.0208539 sec
+Gaussian time (sigma=1): 0.0184387 sec
+Gaussian time (sigma=2): 0.0196408 sec
+
+----------------------------------------
+Testare pentru scale factor = 1
+
+Nearest Neighbor time: 0.0310484 sec
+Bilinear time: 0.0159381 sec
+Bicubic time: 0.0975146 sec
+Gaussian time (sigma=0.5): 0.069152 sec
+Gaussian time (sigma=1): 0.0644941 sec
+Gaussian time (sigma=2): 0.0655824 sec
+
+----------------------------------------
+Testare pentru scale factor = 2
+
+Nearest Neighbor time: 0.0854533 sec
+Bilinear time: 0.0518274 sec
+Bicubic time: 0.339189 sec
+Gaussian time (sigma=0.5): 0.248825 sec
+Gaussian time (sigma=1): 0.243116 sec
+Gaussian time (sigma=2): 0.243938 sec
+----------------------------------------
