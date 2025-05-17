@@ -1,5 +1,5 @@
 #include <opencv2/opencv.hpp>
-#include "src/project.h"
+#include "src/lab8.h"
 using namespace std;
 using namespace cv;
 
@@ -11,22 +11,25 @@ int main() {
     Mat resized_img;
     double scale_factor = 0.5; // redimensionare la 100%
     nearestNeighborResize(source, resized_img, scale_factor, scale_factor);
-    imshow("Nearest Neighbor Resize", resized_img);
+   // imshow("Nearest Neighbor Resize", resized_img);
 
     Mat resized_bilinear;
     bilinearResize(source, resized_bilinear, scale_factor, scale_factor);
-    imshow("Bilinear Resize", resized_bilinear);
+  //  imshow("Bilinear Resize", resized_bilinear);
 
     Mat resized_bicubic;
     bicubicResize(source,resized_bicubic,scale_factor,scale_factor);
-    imshow("Bicubic Resize", resized_bicubic);
+  //  imshow("Bicubic Resize", resized_bicubic);
 
     // pentru parametrul sigma- daca este mai mic intre 0.5 si 1 atunci rezultatul va fi mai clar si daca este mai mare
     // atunci pixelii mai indepartati vor influenta, adica vor adaga o forma de estompare usoara
     Mat resized_gauss;
     double sigma=1.0;
     gaussianInterpolation(source,resized_gauss,scale_factor,scale_factor,sigma);
-    imshow("Gussian Resize", resized_bicubic);
+  //  imshow("Gussian Resize", resized_bicubic);
+
+  // apelez metoda de testare astfel incat sa observ cum se comporta fiecare interpolare implementata in functie de anumiti factori
+    testResizeFunctions(source);
 
     waitKey();
 
