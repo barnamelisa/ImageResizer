@@ -7,6 +7,9 @@
 using namespace std;
 using namespace cv;
 #include <algorithm>
+#include <vector>
+#include <cmath>
+#include <iostream>
 
 // INFO:
     // static_cast<int> e folosit ca sa transformam un numar real in intreg
@@ -199,6 +202,18 @@ void gaussianInterpolation(const Mat& src, Mat& dst, double scale_x, double scal
     }
 }
 
+// functie pt calculul RMSE
+double computeRMSE(const Mat& img1, const Mat& img2) {
+    Mat diff;
+    absdiff(img1, img2, diff);
+    diff.convertTo(diff, CV_32F);
+    diff = diff.mul(diff);
+
+    Scalar sumSq = sum(diff);
+    double rmse = sqrt(sumSq[0] / (img1.total()));
+    return rmse;
+}
+
 void testResizeFunctions(const Mat& source) {
     // un vector cu factorii de scalare pe care ii testam
     vector<double> scale_factors = {0.5, 1.0, 2.0};
@@ -214,14 +229,18 @@ void testResizeFunctions(const Mat& source) {
         cout << "Testare pentru scale factor = " << scale_factor << endl;
 
         // matrici pentru imaginile rezultate pt cele 3 metode, deoarece pt gausiana vom avea alt for deoarece vom testa
-        // pe 3 valori ale [arametrului sigma
+        // pe 3 valori ale parametrului sigma
         Mat resized_nn, resized_bilinear, resized_bicubic;
+
+        // add comentariu
+        Mat ocv_nn, ocv_bilinear, ocv_bicubic;
+
         int start, end;
         double duration;
 
-        // Nearest Neighbor Interpolation
+        // -------------Nearest Neighbor Interpolation--------------
 
-        // getTickCount-este o metoda din OpenCV care masoara unitatile de timp interne de cand a inceput contorul de timp al sistemului
+        // getTickCount()-este o metoda din OpenCV care masoara unitatile de timp interne de cand a inceput contorul de timp al sistemului
         // pe scurt, cu ajutorul acestei functii incep sa masor timpul de executie
         start = getTickCount();
 
@@ -235,47 +254,66 @@ void testResizeFunctions(const Mat& source) {
         // (end - start) este nr de timpi in timpul executiei
         // getTickFrequency()-returneaza cati timpi are un secunda, deci impartind obtin timpul in secunde
         duration = (end - start) / getTickFrequency();
-        cout << "Nearest Neighbor time: " << duration << " sec" << endl;
-        imshow("NN - Scale " + to_string(scale_factor), resized_nn);
+        cout << "Custom NN time: " << duration << " sec" << endl;
 
-        // si aici ca sa nu fie dificil de observat in momentul cand ruleaza proiectul si apar foarte multe imagini pe ecran, vor fi salvate
-        // astfel incat sa le pot analiza mai bine dupa
-        imwrite("nn_scale_" + to_string(scale_factor) + ".png", resized_nn);
+        resize(source, ocv_nn, Size(), scale_factor, scale_factor, INTER_NEAREST);
+        double psnr_nn = PSNR(resized_nn, ocv_nn);
+        double rmse_nn = computeRMSE(resized_nn, ocv_nn);
+        cout << "NN PSNR vs OpenCV: " << psnr_nn << " dB | RMSE: " << rmse_nn << endl;
 
-        // Bilinear Interpolation
+        imwrite("nn_custom_" + to_string(scale_factor) + ".png", resized_nn);
+        imwrite("nn_opencv_" + to_string(scale_factor) + ".png", ocv_nn);
 
-        // se repeta axact aceasi pasi ca si la interpolarea anterioara, doar caapelam functia pentru interpolarea biliniara
+        // ---------- Bilinear ----------
         start = getTickCount();
         bilinearResize(source, resized_bilinear, scale_factor, scale_factor);
         end = getTickCount();
         duration = (end - start) / getTickFrequency();
-        cout << "Bilinear time: " << duration << " sec" << endl;
-        imshow("Bilinear - Scale " + to_string(scale_factor), resized_bilinear);
-        imwrite("bilinear_scale_" + to_string(scale_factor) + ".png", resized_bilinear);
+        cout << "Custom Bilinear time: " << duration << " sec" << endl;
 
-        // Bicubic
+        resize(source, ocv_bilinear, Size(), scale_factor, scale_factor, INTER_LINEAR);
+        double psnr_bilinear = PSNR(resized_bilinear, ocv_bilinear);
+        double rmse_bilinear = computeRMSE(resized_bilinear, ocv_bilinear);
+        cout << "Bilinear PSNR vs OpenCV: " << psnr_bilinear << " dB | RMSE: " << rmse_bilinear << endl;
 
-        // la fel si la bicubica, dar apelam metoda bicubica implementata
+        imwrite("bilinear_custom_" + to_string(scale_factor) + ".png", resized_bilinear);
+        imwrite("bilinear_opencv_" + to_string(scale_factor) + ".png", ocv_bilinear);
+
+        // ---------- Bicubic ----------
         start = getTickCount();
         bicubicResize(source, resized_bicubic, scale_factor, scale_factor);
         end = getTickCount();
         duration = (end - start) / getTickFrequency();
-        cout << "Bicubic time: " << duration << " sec" << endl;
-        imshow("Bicubic - Scale " + to_string(scale_factor), resized_bicubic);
-        imwrite("bicubic_scale_" + to_string(scale_factor) + ".png", resized_bicubic);
+        cout << "Custom Bicubic time: " << duration << " sec" << endl;
 
-        // pentru interpolarea Gaussiana iterez prin valorile de sigma
+        resize(source, ocv_bicubic, Size(), scale_factor, scale_factor, INTER_CUBIC);
+        double psnr_bicubic = PSNR(resized_bicubic, ocv_bicubic);
+        double rmse_bicubic = computeRMSE(resized_bicubic, ocv_bicubic);
+        cout << "Bicubic PSNR vs OpenCV: " << psnr_bicubic << " dB | RMSE: " << rmse_bicubic << endl;
+
+        imwrite("bicubic_custom_" + to_string(scale_factor) + ".png", resized_bicubic);
+        imwrite("bicubic_opencv_" + to_string(scale_factor) + ".png", ocv_bicubic);
+
+        // ---------- Gaussian ----------
         for (double sigma : sigma_values) {
-            // aici se aplica aceasi idee ca si la metodele de interpolare anterioare
             Mat resized_gauss;
             start = getTickCount();
             gaussianInterpolation(source, resized_gauss, scale_factor, scale_factor, sigma);
             end = getTickCount();
             duration = (end - start) / getTickFrequency();
             cout << "Gaussian time (sigma=" << sigma << "): " << duration << " sec" << endl;
-            imshow("Gaussian - Scale " + to_string(scale_factor) + " Sigma " + to_string(sigma), resized_gauss);
-            string filename = "gaussian_scale_" + to_string(scale_factor) + "_sigma_" + to_string(sigma) + ".png";
-            imwrite(filename, resized_gauss);
+            imwrite("gaussian_scale_" + to_string(scale_factor) + "_sigma_" + to_string(sigma) + ".png", resized_gauss);
+
+            // Comparatie cu OpenCV: blur + resize bilinear (echivalent aproximativ) pt ca opencv nu are flag pt interpolarea gaussiana
+            Mat ocv_blurred, ocv_simulated;
+            GaussianBlur(source, ocv_blurred, Size(0, 0), sigma);
+            resize(ocv_blurred, ocv_simulated, Size(), scale_factor, scale_factor, INTER_LINEAR);
+
+            // Calculeaza metricile
+            double psnr = PSNR(resized_gauss, ocv_simulated);
+            double rmse = computeRMSE(resized_gauss, ocv_simulated);
+            cout << "PSNR Gaussian vs OpenCV simulation: " << psnr << endl;
+            cout << "RMSE Gaussian vs OpenCV simulation: " << rmse << endl;
         }
     }
 }

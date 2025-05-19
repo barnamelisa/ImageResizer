@@ -1,30 +1,55 @@
-
 Testare pentru scale factor = 0.5
 
-Nearest Neighbor time: 0.0075203 sec
-Bilinear time: 0.0068229 sec
-Bicubic time: 0.0292748 sec
-Gaussian time (sigma=0.5): 0.0208539 sec
-Gaussian time (sigma=1): 0.0184387 sec
-Gaussian time (sigma=2): 0.0196408 sec
+Custom NN time: 0.0075098 sec
+NN PSNR vs OpenCV: 361.202 dB | RMSE: 0
+Custom Bilinear time: 0.0061897 sec
+Bilinear PSNR vs OpenCV: 28.1913 dB | RMSE: 9.93061
+Custom Bicubic time: 0.0302453 sec
+Bicubic PSNR vs OpenCV: 27.685 dB | RMSE: 10.5267
+Gaussian time (sigma=0.5): 0.0205071 sec
+PSNR Gaussian vs OpenCV simulation: 30.0934
+RMSE Gaussian vs OpenCV simulation: 7.97753
+Gaussian time (sigma=1): 0.019978 sec
+PSNR Gaussian vs OpenCV simulation: 32.3326
+RMSE Gaussian vs OpenCV simulation: 6.16469
+Gaussian time (sigma=2): 0.0178238 sec
+PSNR Gaussian vs OpenCV simulation: 29.0061
+RMSE Gaussian vs OpenCV simulation: 9.04144
 
 ----------------------------------------
 Testare pentru scale factor = 1
 
-Nearest Neighbor time: 0.0310484 sec
-Bilinear time: 0.0159381 sec
-Bicubic time: 0.0975146 sec
-Gaussian time (sigma=0.5): 0.069152 sec
-Gaussian time (sigma=1): 0.0644941 sec
-Gaussian time (sigma=2): 0.0655824 sec
+Custom NN time: 0.0243413 sec
+NN PSNR vs OpenCV: 361.202 dB | RMSE: 0
+Custom Bilinear time: 0.0143972 sec
+Bilinear PSNR vs OpenCV: 361.202 dB | RMSE: 0
+Custom Bicubic time: 0.0917526 sec
+Bicubic PSNR vs OpenCV: 361.202 dB | RMSE: 0
+Gaussian time (sigma=0.5): 0.0625974 sec
+PSNR Gaussian vs OpenCV simulation: 50.8631
+RMSE Gaussian vs OpenCV simulation: 0.730101
+Gaussian time (sigma=1): 0.0596575 sec
+PSNR Gaussian vs OpenCV simulation: 40.9088
+RMSE Gaussian vs OpenCV simulation: 2.29668
+Gaussian time (sigma=2): 0.0597856 sec
+PSNR Gaussian vs OpenCV simulation: 29.9783
+RMSE Gaussian vs OpenCV simulation: 8.08401
 
 ----------------------------------------
 Testare pentru scale factor = 2
 
-Nearest Neighbor time: 0.0854533 sec
-Bilinear time: 0.0518274 sec
-Bicubic time: 0.339189 sec
-Gaussian time (sigma=0.5): 0.248825 sec
-Gaussian time (sigma=1): 0.243116 sec
-Gaussian time (sigma=2): 0.243938 sec
-----------------------------------------
+Custom NN time: 0.0845086 sec
+NN PSNR vs OpenCV: 25.1384 dB | RMSE: 14.113
+Custom Bilinear time: 0.05182 sec
+Bilinear PSNR vs OpenCV: 34.2402 dB | RMSE: 4.94917
+Custom Bicubic time: 0.354047 sec
+Bicubic PSNR vs OpenCV: 33.405 dB | RMSE: 5.44869
+Gaussian time (sigma=0.5): 0.239949 sec
+PSNR Gaussian vs OpenCV simulation: 35.6811
+RMSE Gaussian vs OpenCV simulation: 4.19261
+Gaussian time (sigma=1): 0.241151 sec
+PSNR Gaussian vs OpenCV simulation: 36.093
+RMSE Gaussian vs OpenCV simulation: 3.99842
+Gaussian time (sigma=2): 0.24082 sec
+PSNR Gaussian vs OpenCV simulation: 29.5445
+RMSE Gaussian vs OpenCV simulation: 8.49796
