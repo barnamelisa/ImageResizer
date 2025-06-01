@@ -25,6 +25,8 @@ void nearestNeighborResize(const Mat& src, Mat& dst, double scale_x, double scal
     // dupa care initializez matricea destinatie cu noile dimensiuni
     dst = Mat(new_height, new_width, src.type());
 
+    int channels = src.channels(); // nr de canale: 1 pentru grayscale, 3 pentru RGB
+
     // acum parcurg pixel cu pixel noua imagine
     // merg INVERS, adica prima data parcurg imaginea noua si dupa merg la cea veche
     for (int y = 0; y < new_height; ++y) {
@@ -41,7 +43,14 @@ void nearestNeighborResize(const Mat& src, Mat& dst, double scale_x, double scal
             orig_y = min(orig_y, src.rows - 1);
 
             // setez noua val a pixelului in imaginea redimensionata
-            dst.at<uchar>(y, x) = src.at<uchar>(orig_y, orig_x);
+            if (channels == 1) {
+                // imagine grayscale: copiem direct pixelul
+                dst.at<uchar>(y, x) = src.at<uchar>(orig_y, orig_x);
+            } else {
+                // imagine color: copiem vectorul de 3 valori (B,G,R)
+                Vec3b pixel = src.at<Vec3b>(orig_y, orig_x);
+                dst.at<Vec3b>(y, x) = pixel;
+            }
         }
     }
 }
@@ -53,6 +62,8 @@ void bilinearResize(const Mat& src, Mat& dst, double scale_x, double scale_y) {
 
     // initializez imaginea destinatie cu dimensiunile noi
     dst = Mat(new_height, new_width, src.type());
+
+    int channels = src.channels();
 
     // parcurg fiecare pixel din imaginea redimensionata
     for (int y = 0; y < new_height; ++y) {
@@ -73,21 +84,39 @@ void bilinearResize(const Mat& src, Mat& dst, double scale_x, double scale_y) {
             float dx = gx - x1;
             float dy = gy - y1;
 
-            // extrag cei 4 pixeli vecini
-            uchar p1 = src.at<uchar>(y1, x1); // stanga sus
-            uchar p2 = src.at<uchar>(y1, x2); // dreapta sus
-            uchar p3 = src.at<uchar>(y2, x1); // stanga jos
-            uchar p4 = src.at<uchar>(y2, x2); // dreapta jos
+            if (channels == 1) {
+                // extrag cei 4 pixeli vecini
+                uchar p1 = src.at<uchar>(y1, x1); // stanga sus
+                uchar p2 = src.at<uchar>(y1, x2); // dreapta sus
+                uchar p3 = src.at<uchar>(y2, x1); // stanga jos
+                uchar p4 = src.at<uchar>(y2, x2); // dreapta jos
 
-            // aplic formula de interpolare biliniara
-            // practic fac o medie ponderata a celor 4 pixeli vecini in functie de distanta fata de punctul rea
-            float value = (1 - dx) * (1 - dy) * p1 +
-                          dx * (1 - dy) * p2 +
-                          (1 - dx) * dy * p3 +
-                          dx * dy * p4;
+                // aplic formula de interpolare biliniara
+                // practic fac o medie ponderata a celor 4 pixeli vecini in functie de distanta fata de punctul rea
+                float value = (1 - dx) * (1 - dy) * p1 +
+                              dx * (1 - dy) * p2 +
+                              (1 - dx) * dy * p3 +
+                              dx * dy * p4;
 
-            // salvez rezultatul in imaginea finala
-            dst.at<uchar>(y, x) = static_cast<uchar>(value);
+                // salvez rezultatul in imaginea finala
+                dst.at<uchar>(y, x) = static_cast<uchar>(value);
+            } else {
+                // pt fiecare canal RGB separat
+                Vec3b p1 = src.at<Vec3b>(y1, x1);
+                Vec3b p2 = src.at<Vec3b>(y1, x2);
+                Vec3b p3 = src.at<Vec3b>(y2, x1);
+                Vec3b p4 = src.at<Vec3b>(y2, x2);
+
+                Vec3b value;
+                for (int c = 0; c < 3; ++c) {
+                    float v = (1 - dx) * (1 - dy) * p1[c] +
+                              dx * (1 - dy) * p2[c] +
+                              (1 - dx) * dy * p3[c] +
+                              dx * dy * p4[c];
+                    value[c] = static_cast<uchar>(v);
+                }
+                dst.at<Vec3b>(y, x) = value;
+            }
         }
     }
 }
@@ -108,6 +137,8 @@ void bicubicResize(const Mat& src, Mat& dst, double scale_x, double scale_y) {
     // creez o noua imagine cu noile dimensiuni
     dst = Mat(new_height, new_width, src.type());
 
+    int channels = src.channels();
+
     // parcurg fiecare pixel al imaginii redimensionate
     for (int y = 0; y < new_height; ++y) {
         for (int x = 0; x < new_width; ++x) {
@@ -123,25 +154,45 @@ void bicubicResize(const Mat& src, Mat& dst, double scale_x, double scale_y) {
             float dx = gx - x_int;
             float dy = gy - y_int;
 
-            // folosesc 4 valori de pixeli pentru interpolare pe coloana
-            float col[4];
-            for (int i = -1; i <= 2; ++i) {
-                float p[4];
-                for (int j = -1; j <= 2; ++j) {
-                    // calc indecsii valizi pentru imagine
-                    int xi = min(max(x_int + j, 0), src.cols - 1);
-                    int yi = min(max(y_int + i, 0), src.rows - 1);
+            if (channels == 1) {
+                // folosesc 4 valori de pixeli pentru interpolare pe coloana
+                float col[4];
+                for (int i = -1; i <= 2; ++i) {
+                    float p[4];
+                    for (int j = -1; j <= 2; ++j) {
+                        // calc indecsii valizi pentru imagine
+                        int xi = min(max(x_int + j, 0), src.cols - 1);
+                        int yi = min(max(y_int + i, 0), src.rows - 1);
 
-                    // si aici salvez valorile pixelilor pt interpolare
-                    p[j + 1] = static_cast<float>(src.at<uchar>(yi, xi));
+                        // si aici salvez valorile pixelilor pt interpolare
+                        p[j + 1] = static_cast<float>(src.at<uchar>(yi, xi));
+                    }
+                    // aplic interpolarea cubica pe fiecare coloana
+                    col[i + 1] = cubicInterpolate(p, dx);
                 }
-                // aplic interpolarea cubica pe fiecare coloana
-                col[i + 1] = cubicInterpolate(p, dx);
+                // aplic interpolarea cubica pe rezultate pt a obtine valoarea finala
+                float value = cubicInterpolate(col, dy);
+                // ma asigur ca valoarea pixelului este in intervalul 0-255
+                dst.at<uchar>(y, x) = static_cast<uchar>(min(max(value, 0.0f), 255.0f));
+            } else {
+                // bicubic pe fiecare canal RGB separat
+                Vec3b value;
+                for (int c = 0; c < 3; ++c) {
+                    float col[4];
+                    for (int i = -1; i <= 2; ++i) {
+                        float p[4];
+                        for (int j = -1; j <= 2; ++j) {
+                            int xi = min(max(x_int + j, 0), src.cols - 1);
+                            int yi = min(max(y_int + i, 0), src.rows - 1);
+                            p[j + 1] = static_cast<float>(src.at<Vec3b>(yi, xi)[c]);
+                        }
+                        col[i + 1] = cubicInterpolate(p, dx);
+                    }
+                    float val = cubicInterpolate(col, dy);
+                    value[c] = static_cast<uchar>(min(max(val, 0.0f), 255.0f));
+                }
+                dst.at<Vec3b>(y, x) = value;
             }
-            // aplic interpolarea cubica pe rezultate pt a obtine valoarea finala
-            float value = cubicInterpolate(col, dy);
-            // ma asigur ca valoarea pixelului este in intervalul 0-255
-            dst.at<uchar>(y, x) = static_cast<uchar>(min(max(value, 0.0f), 255.0f));
         }
     }
 }
@@ -157,6 +208,8 @@ void gaussianInterpolation(const Mat& src, Mat& dst, double scale_x, double scal
     int new_height = static_cast<int>(src.rows * scale_y);
 
     dst = Mat(new_height, new_width, src.type());
+
+    int channels = src.channels();
 
     for (int y = 0; y < new_height; ++y) {
         for (int x = 0; x < new_width; ++x) {
@@ -183,21 +236,42 @@ void gaussianInterpolation(const Mat& src, Mat& dst, double scale_x, double scal
             int start_y = std::max(y_int - 1, 0);
             int end_y = std::min(y_int + 1, src.rows - 1);
 
-            float weighted_sum = 0.0f;
-            float total_weight = 0.0f;
+            if (channels == 1) {
+                float weighted_sum = 0.0f;
+                float total_weight = 0.0f;
 
-            // calculez suma ponderata a pixelilor vecini
-            for (int dy = start_y; dy <= end_y; ++dy) {
-                for (int dx = start_x; dx <= end_x; ++dx) {
-                    // calc greutatea fiecarui pixel folosind functia gaussiana
-                    float weight = gaussianKernel(dx - x_int, dy - y_int, sigma);
-                    weighted_sum += src.at<uchar>(dy, dx) * weight;
-                    total_weight += weight;
+                // calculez suma ponderata a pixelilor vecini
+                for (int dy = start_y; dy <= end_y; ++dy) {
+                    for (int dx = start_x; dx <= end_x; ++dx) {
+                        // calc greutatea fiecarui pixel folosind functia gaussiana
+                        float weight = gaussianKernel(dx - x_int, dy - y_int, sigma);
+                        weighted_sum += src.at<uchar>(dy, dx) * weight;
+                        total_weight += weight;
+                    }
                 }
-            }
 
-            // calculez valoarea finala a pixelului
-            dst.at<uchar>(y, x) = static_cast<uchar>(weighted_sum / total_weight);
+                // calculez valoarea finala a pixelului
+                dst.at<uchar>(y, x) = static_cast<uchar>(weighted_sum / total_weight);
+            } else {
+                Vec3f weighted_sum(0.0f, 0.0f, 0.0f);
+                float total_weight = 0.0f;
+                for (int dy = start_y; dy <= end_y; ++dy) {
+                    for (int dx = start_x; dx <= end_x; ++dx) {
+                        float weight = gaussianKernel(dx - x_int, dy - y_int, sigma);
+                        Vec3b pixel = src.at<Vec3b>(dy, dx);
+                        // calc suma ponderata pe fiecare canal
+                        weighted_sum[0] += pixel[0] * weight;
+                        weighted_sum[1] += pixel[1] * weight;
+                        weighted_sum[2] += pixel[2] * weight;
+                        total_weight += weight;
+                    }
+                }
+                Vec3b result;
+                for (int c = 0; c < 3; ++c) {
+                    result[c] = static_cast<uchar>(weighted_sum[c] / total_weight);
+                }
+                dst.at<Vec3b>(y, x) = result;
+            }
         }
     }
 }
